@@ -38,7 +38,6 @@ The repository contains the following SDK packages in `./packages/`:
 | `next/`          | `@posthog/next`          | Next.js framework module                        |
 | `nextjs-config/` | `@posthog/nextjs-config` | Next.js configuration helper                    |
 | `openfeature-node-provider/` | `@posthog/openfeature-node-provider` | OpenFeature server provider (posthog-node)   |
-| `openfeature-web-provider/`  | `@posthog/openfeature-web-provider`  | OpenFeature web provider (posthog-js)        |
 | `plugin-utils/`  | `@posthog/plugin-utils`  | Shared CLI and sourcemap utilities for plugins  |
 | `types/`         | `@posthog/types`         | TypeScript type definitions for the SDK         |
 
