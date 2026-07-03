@@ -57,7 +57,7 @@
   ],
   "peerDependencies": {
     "@openfeature/core": "^1.11.0",
-    "@openfeature/server-sdk": "^1.7.0",
+    "@openfeature/server-sdk": "^1.17.0",
     "posthog-node": ">=5.21.2"
   },
   "devDependencies": {

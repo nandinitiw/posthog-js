@@ -68,6 +68,24 @@ describe('PostHogServerProvider', () => {
         (p) => p.resolveObjectEvaluation('flag', {}, CTX),
         { value: { color: 'blue', count: 3 } },
       ],
+      [
+        'disabled flag as string → default / DEFAULT',
+        { key: 'flag', enabled: false },
+        (p) => p.resolveStringEvaluation('flag', 'fallback', CTX),
+        { value: 'fallback', reason: StandardResolutionReasons.DEFAULT },
+      ],
+      [
+        'disabled flag as number → default / DEFAULT',
+        { key: 'flag', enabled: false },
+        (p) => p.resolveNumberEvaluation('flag', 42, CTX),
+        { value: 42, reason: StandardResolutionReasons.DEFAULT },
+      ],
+      [
+        'disabled flag as object → default / DEFAULT',
+        { key: 'flag', enabled: false },
+        (p) => p.resolveObjectEvaluation('flag', { fallback: true }, CTX),
+        { value: { fallback: true }, reason: StandardResolutionReasons.DEFAULT },
+      ],
     ])('resolves %s', async (_name, result, resolve, expected) => {
       const { client } = makeClient(result)
       const details = await resolve(new PostHogServerProvider(client))
@@ -76,15 +94,27 @@ describe('PostHogServerProvider', () => {
 
     it.each<[string, FlagResult | undefined, Resolve, ErrorCode]>([
       [
-        'string from a boolean flag (no variant)',
+        'string from an enabled boolean flag (no variant)',
         { key: 'flag', enabled: true },
         (p) => p.resolveStringEvaluation('flag', 'x', CTX),
+        ErrorCode.TYPE_MISMATCH,
+      ],
+      [
+        'number from an enabled boolean flag (no variant)',
+        { key: 'flag', enabled: true },
+        (p) => p.resolveNumberEvaluation('flag', 0, CTX),
         ErrorCode.TYPE_MISMATCH,
       ],
       [
         'number from a non-numeric variant',
         { key: 'flag', enabled: true, variant: 'not-a-number' },
         (p) => p.resolveNumberEvaluation('flag', 0, CTX),
+        ErrorCode.TYPE_MISMATCH,
+      ],
+      [
+        'object from an enabled flag with no payload',
+        { key: 'flag', enabled: true, variant: 'x' },
+        (p) => p.resolveObjectEvaluation('flag', {}, CTX),
         ErrorCode.TYPE_MISMATCH,
       ],
       [

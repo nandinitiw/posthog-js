@@ -80,8 +80,12 @@ export class PostHogServerProvider implements Provider {
     // un-ready — remote evaluation still works.
     try {
       await this._client.reloadFeatureFlags()
-    } catch {
-      // Intentionally ignored: remote evaluation remains available.
+    } catch (err) {
+      // Remote evaluation still works, so don't block readiness — but surface
+      // the failure so a genuine misconfiguration (bad host, network error) on
+      // a client set up for local evaluation isn't invisible.
+      // eslint-disable-next-line no-console
+      console.warn('[PostHogServerProvider] initialize() flag preload failed; remote evaluation still available.', err)
     }
   }
 
@@ -95,26 +99,26 @@ export class PostHogServerProvider implements Provider {
 
   async resolveStringEvaluation(
     flagKey: string,
-    _defaultValue: string,
+    defaultValue: string,
     context: EvaluationContext
   ): Promise<ResolutionDetails<string>> {
-    return resolveStringDetails(await this._evaluate(flagKey, context), flagKey)
+    return resolveStringDetails(await this._evaluate(flagKey, context), flagKey, defaultValue)
   }
 
   async resolveNumberEvaluation(
     flagKey: string,
-    _defaultValue: number,
+    defaultValue: number,
     context: EvaluationContext
   ): Promise<ResolutionDetails<number>> {
-    return resolveNumberDetails(await this._evaluate(flagKey, context), flagKey)
+    return resolveNumberDetails(await this._evaluate(flagKey, context), flagKey, defaultValue)
   }
 
   async resolveObjectEvaluation<T extends JsonValue>(
     flagKey: string,
-    _defaultValue: T,
+    defaultValue: T,
     context: EvaluationContext
   ): Promise<ResolutionDetails<T>> {
-    return resolveObjectDetails<T>(await this._evaluate(flagKey, context), flagKey)
+    return resolveObjectDetails<T>(await this._evaluate(flagKey, context), flagKey, defaultValue)
   }
 
   private async _evaluate(flagKey: string, context: EvaluationContext): Promise<PostHogFlagResult | undefined> {
